@@ -97,10 +97,15 @@ public class FileManager {
     	// increment counter
     	
     	
+    	createReplicaFiles();
     	
-    	
-    	
+    	for(BigInteger key: replicafiles) {
     		
+    		NodeInterface successor = chordnode.findSuccessor(key);
+    		successor.addKey(key);
+    		successor.saveFileContent(filename, key, bytesOfFile, counter==0);
+    		counter++;
+    	}
 		return counter;
     }
 	
