@@ -63,7 +63,13 @@ public class FileManager {
 		// hash the replica
 		
 		// store the hash in the replicafiles array.
-
+		
+		for(int i = 0; i < numReplicas; i++) {
+			
+			String temp = filename + i;
+			BigInteger hash = Hash.hashOf(temp);
+			replicafiles[i] = hash;
+		}
 	}
 	
     /**
@@ -89,6 +95,10 @@ public class FileManager {
     	// call the saveFileContent() on the successor
     	
     	// increment counter
+    	
+    	
+    	
+    	
     	
     		
 		return counter;

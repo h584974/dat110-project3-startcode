@@ -5,6 +5,7 @@ package no.hvl.dat110.middleware;
 
 import java.math.BigInteger;
 import java.rmi.RemoteException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,8 +41,18 @@ public class ChordLookup {
 		// if logic returns false; call findHighestPredecessor(key)
 		
 		// do return highest_pred.findSuccessor(key) - This is a recursive call until logic returns true
-				
-		return null;					
+		
+		NodeInterface successor = node.getSuccessor();
+		
+		if(Util.computeLogic(key, node.getNodeID().add(BigInteger.ONE), successor.getNodeID())) {
+			
+			NodeInterface stub = Util.getProcessStub(successor.getNodeName(), successor.getPort());
+			return stub;
+		}
+		else {
+			NodeInterface highestPredecessor = findHighestPredecessor(key);
+			return highestPredecessor.findSuccessor(key);
+		}					
 	}
 	
 	/**
@@ -62,6 +73,19 @@ public class ChordLookup {
 		
 		// if logic returns true, then return the finger (means finger is the closest to key)
 		
+		
+		List<NodeInterface> fingertable = node.getFingerTable();
+		
+		for(int i = fingertable.size()-1; i >= 0; i--) {
+			
+			NodeInterface finger = fingertable.get(i);
+			
+			if(Util.computeLogic(finger.getNodeID(), node.getNodeID().add(BigInteger.ONE), key.subtract(BigInteger.ONE))) {
+				
+				NodeInterface stub = Util.getProcessStub(finger.getNodeName(), finger.getPort());
+				return stub;
+			}
+		}
 		return (NodeInterface) node;			
 	}
 	
