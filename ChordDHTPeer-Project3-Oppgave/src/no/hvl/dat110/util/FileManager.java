@@ -96,6 +96,8 @@ public class FileManager {
     	
     	// increment counter
     	
+    	Random r = new Random();
+    	int index = r.nextInt(Util.numReplicas-1);
     	
     	createReplicaFiles();
     	
@@ -103,7 +105,7 @@ public class FileManager {
     		
     		NodeInterface successor = chordnode.findSuccessor(key);
     		successor.addKey(key);
-    		successor.saveFileContent(filename, key, bytesOfFile, counter==0);
+    		successor.saveFileContent(filename, key, bytesOfFile, counter==index);
     		counter++;
     	}
 		return counter;
@@ -131,8 +133,16 @@ public class FileManager {
 		
 		// save the metadata in the set succinfo.
 		
-		this.activeNodesforFile = succinfo;
+		createReplicaFiles();
 		
+		for(BigInteger key: replicafiles) {
+			
+			NodeInterface successor = chordnode.findSuccessor(key);
+			Message m = successor.getFilesMetadata().get(key);
+			succinfo.add(m);
+		}
+		
+		this.activeNodesforFile = succinfo;
 		return succinfo;
 	}
 	
@@ -152,6 +162,13 @@ public class FileManager {
 		
 		// return the primary
 		
+		for(Message m: activeNodesforFile) {
+			
+			if(m.isPrimaryServer()) {
+				
+				return Util.getProcessStub(m.getNodeIP(), m.getPort());
+			}
+		}
 		return null; 
 	}
 	
