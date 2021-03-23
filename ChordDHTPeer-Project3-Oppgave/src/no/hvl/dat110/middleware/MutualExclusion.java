@@ -160,7 +160,7 @@ public class MutualExclusion {
 				
 				NodeInterface stub = Util.getProcessStub(procName, port);
 				message.setAcknowledged(true);
-				onMutexAcknowledgementReceived(message);
+				stub.onMutexAcknowledgementReceived(message);
 				
 				break;
 			}
@@ -185,15 +185,10 @@ public class MutualExclusion {
 				// if sender wins, acknowledge the message, obtain a stub and call onMutexAcknowledgementReceived()
 				// if sender looses, queue it
 				
-				int sendingClock = message.getClock();
-				int ownClock = clock.getClock();
+				boolean senderWins = message.getClock() < clock.getClock() || 
+						(message.getClock() == clock.getClock() && message.getNodeID().compareTo(node.getNodeID()) < 0);
 				
-				BigInteger Id = node.getNodeID();
-				BigInteger sendingId = message.getNodeID();
-				
-				BigInteger smallestID = Id.compareTo(sendingId) < 0 ? Id : sendingId;
-				
-				if((sendingClock < ownClock) || (sendingClock == ownClock && smallestID.equals(sendingId))) {
+				if(senderWins) {
 					message.setAcknowledged(true);
 					NodeInterface stub = Util.getProcessStub(message.getNodeIP(), message.getPort());
 					stub.onMutexAcknowledgementReceived(message);
